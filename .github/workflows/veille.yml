@@ -22,7 +22,6 @@ jobs:
           elif [ "$(TZ=Europe/Paris date +%H)" = "09" ]; then
             echo "go=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Pas 9h a Paris ($(TZ=Europe/Paris date +%H)h) -> on saute."
             echo "go=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -41,32 +40,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm install -g @anthropic-ai/claude-code
+                            @              laude-code
 
-      - name: Recuperer le JORF
+      - name: Recuperer      - name: Recupere          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIE      - na         PISTE_C      - name: Recupecrets.PISTE_CLIENT_SECRET }}
+        run: python scripts/fetch_jorf.py
+
+      - name: Re      - name: Re   dence
         env:
-          PISTE_CLIENT_ID: ${{ s       PISTE_CLIENT_ID }}                  PISTE_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
-        run: python scripts/fetc       py
-
-      - name: Recupere      - name: Recupere      - name: Recupere      - name: Recupere    .P      - name: Recupere      - name: Recupere ET: ${{ secrets.PISTE_CLIENT_SECRET }}
-        run: python scripts/fetch_juri.py
-
-      - name: Rediger le digest
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PISTE_CLIENT_ID: ${{   crets.PISTE_C          PISTE_CLIENT_ID: ${{   crets.PISTE_C          PISTE_CLIENT_ICR          PISTE_CLIENT_ID: ${{   crets.PISTi.py          PISTE_CLIENT_ID: ${{   crets.PISTE_C           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
-          PISTE_CLIENT_SECRET: ${{ secrets.PI          PISTE_CLIEN        run: |
-                     $(cat agent_prompt.md)" \
-            --allowedTools "Read,Write,Bash" \
-            --permission-mode accep            --permission-m-turns             --permission-mode accep         env:
-            --permission-mode accret       D_API_K            --permission-mo:             --permission-mode accret       D_API_K  secrets.DIGEST_TO }}
-        run: python scripts/send_digest.py
+          PISTE_CLI        ET         rets.PISTE_CLIENT_SECRET }}
+        run: claude        run: claude    .md)" --allowed        run: claude        run: sion-mode acceptEdits --max-turns 20
 
-      - name: Persister le registre de deduplication
-        run: |
-          git config user.name "veille-          git config user.name "veille- tio          git config user.name "veille-          git config user.name "veille- tio          git config user.name "veille-          git config user.name "veille- tio          gi            git config user.name "veille-              git config user.nahec
-        if: failure()
-        env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          DIGEST_FROM: ${{ secrets.DIGEST_          DIGEST_FROM: ${{ secrets.DIGEST_          DIGEST_FROM: ${{ secrets.D cu          DIGEST_FROM: ${{ secrets.DIGEST_   
-                                              AP                                              AP                                              AP              \"$DIGE                                              AP                                              AP                                              AP      }/actions/runs/${{ github.run_id }}</p>\"}"
+               nv               nv                               nv               nv            Y }}
+          DIGEST_FROM: ${{ secrets.DIGEST_FROM }}
+          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig  .no          DIGEST_TO: ${{ se          DIGe/j          DIGEST_TO: ${{ se        -m "maj registre ju          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig  .no          DIGEST_TO}
+          DIGEST_TO: ${{ secrets.DIGEST_TO }}
+        run: curl -s -X POST https://api.resend.com/emails -H "Authorization: Be        run: curl -s -X POST https://api.resend.com/emails -H "Authorization: Be        run: curl -s -X POST https://api.res\"[        run: curl t des affaires\",\"html\":\"<p>Le pipeline a echoue. Logs GitHub Actions.</p>\"}"
