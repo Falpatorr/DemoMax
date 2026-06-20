@@ -3,4 +3,4 @@ cat > .gitignore << 'EOF'
 data/
 output/
 __pycache__/
-EOF
+EOF.DS_Store
