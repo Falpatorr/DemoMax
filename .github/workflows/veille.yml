@@ -2,11 +2,33 @@ name: veille-droit-affaires
 
 on:
   schedule:
-    - cron: "7 6 * * 1-5"
+    - cron: "0 7 * * 1-5"
+    - cron: "0 8 * * 1-5"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.check.outputs.go }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          elif [ "$(TZ=Europe/Paris date +%H)" = "09" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Pas 9h a Paris ($(TZ=Europe/Paris date +%H)h) -> on saute."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
+
   digest:
+    needs: gate
+    if: needs.gate.outputs.go == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,31 +36,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r requirements.txt
-
-      - name: Récupérer le JORF
-        env:
-          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
-          PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
-        run: python scripts/fetch_jorf.py
+      - run: pip install requests python-dotenv
 
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - run: npm install -g @anthropic-ai/claude-code
 
-      - name: Rédiger le digest
+      - name: Recuperer le JORF
+        env:
+          PISTE_CLIENT_ID: ${{ s       PISTE_CLIENT_ID }}                  PISTE_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
+        run: python scripts/fetc       py
+
+      - name: Recupere      - name: Recupere      - name: Recupere      - name: Recupere    .P      - name: Recupere      - name: Recupere ET: ${{ secrets.PISTE_CLIENT_SECRET }}
+        run: python scripts/fetch_juri.py
+
+      - name: Rediger le digest
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          DATESTAMP=$(date +%Y%m%d)
-          claude -p "Lis data/raw_${DATESTAMP}.json, applique CLAUDE.md, écris output/digest_${DATESTAMP}.html." \
-            --allowedTools "Read,Write,Bash" --permission-mode acceptEdits \
-            --max-turns 8 --output-format text
+          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
+          PISTE_CLIENT_SECRET: ${{ secrets.PI          PISTE_CLIEN        run: |
+                     $(cat agent_prompt.md)" \
+            --allowedTools "Read,Write,Bash" \
+            --permission-mode accep            --permission-m-turns             --permission-mode accep         env:
+            --permission-mode accret       D_API_K            --permission-mo:             --permission-mode accret       D_API_K  secrets.DIGEST_TO }}
+        run: python scripts/send_digest.py
 
-      - name: Envoyer
+      - name: Persister le registre de deduplication
+        run: |
+          git config user.name "veille-          git config user.name "veille- tio          git config user.name "veille-          git config user.name "veille- tio          git config user.name "veille-          git config user.name "veille- tio          gi            git config user.name "veille-              git config user.nahec
+        if: failure()
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          DIGEST_FROM: ${{ secrets.DIGEST_FROM }}
-          DIGEST_TO: ${{ secrets.DIGEST_TO }}
-        run: python scripts/send_digest.py
+          DIGEST_FROM: ${{ secrets.DIGEST_          DIGEST_FROM: ${{ secrets.DIGEST_          DIGEST_FROM: ${{ secrets.D cu          DIGEST_FROM: ${{ secrets.DIGEST_   
+                                              AP                                              AP                                              AP              \"$DIGE                                              AP                                              AP                                              AP      }/actions/runs/${{ github.run_id }}</p>\"}"
