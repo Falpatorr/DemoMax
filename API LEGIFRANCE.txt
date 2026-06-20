@@ -1,0 +1,10 @@
+
+
+
+
+Client ID = 43eb3c18-ee63-4a97-9300-18e416685c89 ()
+
+Client Secret = b0b210e5-0693-4a76-980c-e091a6f8799c ()
+
+
+API RESEND = re_NQVWdhjR_6XRqYHQysPeVxvFDQnmpJVff
