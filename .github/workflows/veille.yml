@@ -59,7 +59,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
           PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
-        run: claude -p "$(cat agent_prompt.md)" --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 20
+        run: |
+          claude -p "$(cat agent_prompt.md)" --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 20
 
       - name: Envoyer le digest
         env:
@@ -82,4 +83,5 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           DIGEST_FROM: ${{ secrets.DIGEST_FROM }}
           DIGEST_TO: ${{ secrets.DIGEST_TO }}
-        run: curl -s -X POST https://api.resend.com/emails -H "Authorization: Bearer $RESEND_API_KEY" -H "Content-Type:application/json" -d "{\"from\":\"$DIGEST_FROM\",\"to\":[\"$DIGEST_TO\"],\"subject\":\"[ECHEC] Veille droit des affaires\",\"html\":\"<p>Le pipeline a echoue. Logs GitHub Actions.</p>\"}"
+        run: |
+          curl -s -X POST https://api.resend.com/emails -H "Authorization: Bearer $RESEND_API_KEY" -H "Content-Type: application/json" -d "{\"from\":\"$DIGEST_FROM\",\"to\":[\"$DIGEST_TO\"],\"subject\":\"[ECHEC] Veille droit des affaires\",\"html\":\"<p>Le pipeline a echoue. Logs GitHub Actions.</p>\"}"
