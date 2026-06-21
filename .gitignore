@@ -1,6 +1,5 @@
-cat > .gitignore << 'EOF'
 .env
 data/
 output/
 __pycache__/
-EOF.DS_Store
+.DS_Store

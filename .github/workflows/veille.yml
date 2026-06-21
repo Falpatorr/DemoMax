@@ -40,20 +40,46 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-                            @              laude-code
+      - run: npm install -g @anthropic-ai/claude-code
 
-      - name: Recuperer      - name: Recupere          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIE      - na         PISTE_C      - name: Recupecrets.PISTE_CLIENT_SECRET }}
+      - name: Recuperer le JORF
+        env:
+          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
+          PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
         run: python scripts/fetch_jorf.py
 
-      - name: Re      - name: Re   dence
+      - name: Recuperer la jurisprudence
         env:
-          PISTE_CLIENT_ID: ${{   crets.PISTE_C          PISTE_CLIENT_ID: ${{   crets.PISTE_C          PISTE_CLIENT_ICR          PISTE_CLIENT_ID: ${{   crets.PISTi.py          PISTE_CLIENT_ID: ${{   crets.PISTE_C           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
-          PISTE_CLI        ET         rets.PISTE_CLIENT_SECRET }}
-        run: claude        run: claude    .md)" --allowed        run: claude        run: sion-mode acceptEdits --max-turns 20
+          PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
+        run: python scripts/fetch_juri.py
 
-               nv               nv                               nv               nv            Y }}
+      - name: Rediger le digest
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
+          PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
+        run: claude -p "$(cat agent_prompt.md)" --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 20
+
+      - name: Envoyer le digest
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           DIGEST_FROM: ${{ secrets.DIGEST_FROM }}
-          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig  .no          DIGEST_TO: ${{ se          DIGe/j          DIGEST_TO: ${{ se        -m "maj registre ju          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig          DIGEST_TO: ${{ se          DIGEST_TO: ${{ se          DIGEST_TO: ${{ dig  .no          DIGEST_TO}
           DIGEST_TO: ${{ secrets.DIGEST_TO }}
-        run: curl -s -X POST https://api.resend.com/emails -H "Authorization: Be        run: curl -s -X POST https://api.resend.com/emails -H "Authorization: Be        run: curl -s -X POST https://api.res\"[        run: curl t des affaires\",\"html\":\"<p>Le pipeline a echoue. Logs GitHub Actions.</p>\"}"
+        run: python scripts/send_digest.py
+
+      - name: Persister le registre de deduplication
+        run: |
+          git config user.name "veille-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add state/juri_seen.json
+          git commit -m "maj registre jurisprudence [skip ci]" || echo "rien a committer"
+          git push || echo "rien a pousser"
+
+      - name: Alerte en cas d'echec
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DIGEST_FROM: ${{ secrets.DIGEST_FROM }}
+          DIGEST_TO: ${{ secrets.DIGEST_TO }}
+        run: curl -s -X POST https://api.resend.com/emails -H "Authorization: Bearer $RESEND_API_KEY" -H "Content-Type:application/json" -d "{\"from\":\"$DIGEST_FROM\",\"to\":[\"$DIGEST_TO\"],\"subject\":\"[ECHEC] Veille droit des affaires\",\"html\":\"<p>Le pipeline a echoue. Logs GitHub Actions.</p>\"}"
