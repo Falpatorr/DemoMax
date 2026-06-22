@@ -1,18 +1,18 @@
 """
-fetch_jorf.py
+fetch_jorf.py  (version HEBDOMADAIRE)
 
-Recupere les textes du Journal officiel sur la fenetre voulue
-(J-1 en semaine ; vendredi -> dimanche le lundi), aplatit l'arbre du
-sommaire et ecrit data/raw_AAAAMMJJ.json.
+Recupere les textes du Journal officiel sur la SEMAINE ECOULEE (les 7 jours
+precedant l'execution), aplatit l'arbre du sommaire de chaque JO, et ecrit
+data/raw.json (cle 'textes').
 
-Ce script ne fait AUCUN tri par matiere : il extrait tous les textes avec
-leurs metadonnees. La selection de ce qui releve du droit des affaires est
-faite ensuite par Claude, a partir de ce fichier brut.
+Ce script ne fait AUCUN tri par matiere : il extrait tous les textes avec leurs
+metadonnees. La selection de ce qui releve du droit des affaires est faite
+ensuite par Claude, a partir de ce fichier brut.
 
-Fonctionne a l'identique en local (.env) et dans GitHub Actions (secrets).
+A lancer AVANT fetch_juri.py (qui ajoute la jurisprudence dans le meme raw.json).
 
 Usage :
-  python3 fetch_jorf.py
+  python3 scripts/fetch_jorf.py
 """
 
 import os
@@ -27,9 +27,12 @@ load_dotenv()
 
 ENV = "production"
 
-# Mettre a True pour ignorer la fenetre et traiter simplement le dernier JO
-# disponible (pratique pour tester un week-end ou un jour ferie).
+# --- Reglages -----------------------------------------------------------------
+JOURS = 7          # fenetre couverte : les 7 jours precedant l'execution
+NB_JO_MAX = 20     # nb de JO a recuperer puis filtrer (large, pour les editions speciales)
+# Mettre a True pour ignorer la fenetre et ne traiter que le dernier JO (test rapide).
 FORCE_DERNIER_JO = False
+# ------------------------------------------------------------------------------
 
 URLS = {
     "production": {
@@ -87,18 +90,14 @@ def post(token, path, payload):
 
 
 def fenetre():
-    """Fenetre de publication a couvrir (dates incluses)."""
+    """Semaine ecoulee : les JOURS jours precedant aujourd'hui (dates incluses)."""
     today = datetime.now(ZoneInfo("Europe/Paris")).date()
-    if today.weekday() == 0:               # lundi -> rattrape vendredi, samedi, dimanche
-        start = today - timedelta(days=3)
-    else:                                  # autres jours -> la veille
-        start = today - timedelta(days=1)
-    return start, today - timedelta(days=1)
+    return today - timedelta(days=JOURS), today - timedelta(days=1)
 
 
 def date_eli(id_eli):
     """'/eli/jo/2026/6/20/0143' -> date(2026, 6, 20)."""
-    p = id_eli.strip("/").split("/")       # ['eli','jo','2026','6','20','0143']
+    p = id_eli.strip("/").split("/")
     return date(int(p[2]), int(p[3]), int(p[4]))
 
 
@@ -122,16 +121,17 @@ def collecter_textes(tm, chemin):
 
 def main():
     token = get_token()
-    last = post(token, "/consult/lastNJo", {"nbElement": 6})
+    last = post(token, "/consult/lastNJo", {"nbElement": NB_JO_MAX})
     containers = last.get("containers", [])
 
     if FORCE_DERNIER_JO:
         retenus = [(containers[0]["id"], date_eli(containers[0]["idEli"]),
                     containers[0].get("titre"))]
+        start = end = retenus[0][1]
         print(f"[mode test] dernier JO uniquement : {retenus[0][2]}")
     else:
         start, end = fenetre()
-        print(f"Fenetre de publication : {start} -> {end}")
+        print(f"Fenetre hebdomadaire : {start} -> {end}")
         retenus = []
         for c in containers:
             if not c.get("idEli"):
@@ -141,10 +141,10 @@ def main():
                 retenus.append((c["id"], d, c.get("titre")))
 
     if not retenus:
-        print("Aucun JO sur la fenetre (week-end ou jour ferie ?). Rien a ecrire.")
+        print("Aucun JO sur la semaine (rare). raw.json sera quasi vide.")
 
     tous_textes = []
-    for cid, d, titre in retenus:
+    for cid, d, titre in sorted(retenus, key=lambda x: x[1]):
         somm = post(token, "/consult/jorfCont", {"id": cid})
         structure = somm["items"][0]["joCont"].get("structure", {})
         textes = []
@@ -153,17 +153,17 @@ def main():
         for t in textes:
             t["jo"] = titre
             t["date_jo"] = d.isoformat()
-        print(f"  {titre} : {len(textes)} textes")
+        print(f"  {titre} ({d}) : {len(textes)} textes")
         tous_textes += textes
 
     os.makedirs("data", exist_ok=True)
-    out = "data/raw.json"
-    with open(out, "w", encoding="utf-8") as f:
+    with open("data/raw.json", "w", encoding="utf-8") as f:
         json.dump({
+            "periode": {"debut": start.isoformat(), "fin": end.isoformat()},
             "nb_textes": len(tous_textes),
             "textes": tous_textes,
         }, f, ensure_ascii=False, indent=2)
-    print(f"\n{len(tous_textes)} textes ecrits dans {out}")
+    print(f"\n{len(retenus)} JO, {len(tous_textes)} textes ecrits dans data/raw.json")
 
 
 if __name__ == "__main__":
