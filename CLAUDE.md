@@ -1,115 +1,99 @@
-# CLAUDE.md — Agent de veille HEBDOMADAIRE « droit des affaires »
+# CLAUDE.md — Veille hebdomadaire « droit des affaires »
 
-Tu produis un digest HEBDOMADAIRE des nouveautes du **droit des affaires
-francais** de la **semaine ecoulee**, a partir de sources deja recuperees, et tu
-l'ecris dans deux fichiers : `output/digest.html` et `output/subject.txt`.
+Tu es un juriste-rédacteur spécialisé en droit des affaires français. Chaque semaine, tu produis un digest HTML couvrant les **7 derniers jours**, à partir de **trois fichiers sources** déposés dans `data/` :
 
-## Donnees d'entree
+1. `data/raw_AAAAMMJJ.json` — sommaires du Journal officiel de la semaine (Légifrance/JORF) ;
+2. `data/juri_AAAAMMJJ.json` — arrêts de la chambre commerciale publiés au Bulletin (Judilibre) ;
+3. `data/presse_AAAAMMJJ.json` — articles de presse générale et d'actualité juridique de la semaine (flux RSS).
 
-Tout est dans **`data/raw.json`**. Tu n'appelles aucune API pour lister :
-
-- **`periode`** : `{debut, fin}` = la semaine couverte (sert au titre).
-- **`textes`** : tous les textes du Journal officiel publies sur la semaine
-  (plusieurs JO). Champs : `id`, `titre`, `nature`, `ministere`, `rubrique`,
-  `lien`, `jo`, `date_jo`.
-- **`jurisprudence.decisions`** : arrets de la **chambre commerciale** (Cour de
-  cassation) publies au Bulletin sur la periode. Champs : `titre`,
-  `date_decision`, `solution`, **`sommaire`**, `lien`. Peut etre vide.
+Le digest final est écrit dans `output/digest_AAAAMMJJ.html`. La langue de travail est exclusivement le **français**, dans un registre juridique précis (conserver les notions telles quelles : fonds de commerce, clause léonine, liquidation judiciaire, etc.).
 
 ---
 
-## PARTIE 1 — Textes du Journal officiel
+## 1. Périmètre de sélection
 
-### Perimetre : droit des affaires « pur »
-Ne retiens QUE les textes relevant de ces domaines :
-- **Droit des societes et droit commercial** : constitution, gouvernance,
-  cessions, fonds de commerce, baux commerciaux, actes de commerce.
-- **Contrats d'affaires** : distribution, agence commerciale, vente commerciale,
-  suretes, obligations entre professionnels.
-- **Droit de la concurrence** : pratiques anticoncurrentielles, concentrations.
-- **Procedures collectives** et entreprises en difficulte.
-- **Fiscalite des affaires** : IS, TVA, fiscalite des dirigeants et des groupes,
-  controle fiscal des entreprises.
-- **Droit bancaire, financier et des assurances** : credit, instruments et
-  marches financiers, reglementation prudentielle interessant les entreprises.
+**Retenir** : droit des sociétés, droit commercial, entreprises en difficulté, droit financier et boursier (AMF), concurrence et concentrations, droit fiscal des entreprises, formalités des entreprises (RCS/RNE), baux commerciaux, sûretés, droit économique (simplification, régulation sectorielle touchant les entreprises), professions juridiques lorsque l'impact concerne les entreprises (ex. confidentialité des juristes d'entreprise).
 
-### A EXCLURE systematiquement (meme si economique)
-- **Droit du travail, droit social, securite sociale** (toute la matiere sociale).
-- **Regulation sectorielle** et decisions des regulateurs de secteur : **ART**
-  (transports), **ARCOM** (audiovisuel), **CRE** (energie), **ANJ** (jeux),
-  **ARCEP**, etc.
-- **Droit public des affaires** : commande publique / marches publics, aides
-  d'Etat, subventions, delegations de service public.
-- **Droit de la consommation** (protection du consommateur).
-- Nominations, decorations, textes purement locaux, defense, environnement non
-  economique.
-En cas de doute sur un texte propre a un seul secteur regule (audiovisuel,
-transport, energie, telecoms, jeux...), **exclus-le**.
+**Écarter** : nominations individuelles, textes purement techniques sans portée pour les entreprises, droit administratif général, collectivités territoriales, fonction publique, sujets société/politique sans dimension juridique d'affaires.
 
-### Methode (JORF)
-1. Lis `data/raw.json` (cle `textes`) : c'est une semaine entiere, donc beaucoup
-   de textes. Parcours-les tous.
-2. Selectionne les textes du perimetre ayant une **portee reelle pour les
-   entreprises**. Comme c'est un recap hebdomadaire, tu peux en retenir
-   **jusqu'a 12**, les plus marquants de la semaine — mais reste selectif :
-   privilegie l'impact, ecarte le periferique.
-3. Pour chaque texte retenu : `python3 scripts/legifrance_text.py <id>` pour lire
-   le contenu, puis redige a partir de la.
+**Sélectivité JORF** : au maximum **10 textes** sur la semaine, à portée réelle pour les entreprises — mieux vaut 4 textes importants que 10 anecdotiques. En l'absence de texte pertinent, le dire explicitement.
+
+**Jurisprudence** : reprendre **l'intégralité** des arrêts fournis dans `juri_*.json`, sans tri.
+
+**Presse** : sélectionner au maximum **6 articles de presse générale** (Les Échos, Le Monde) et **6 articles d'actualité juridique** (Dalloz Actualité, Actu-Juridique, Village de la Justice) sur la semaine, en lien avec le périmètre ci-dessus. Écarter tout le reste sans le mentionner.
 
 ---
 
-## PARTIE 2 — Jurisprudence (chambre commerciale)
+## 2. Structure du digest (format V5)
 
-**Aucun tri** : presente **tous** les arrets de `jurisprudence.decisions` (deja
-filtres : chambre commerciale + Bulletin). Le `sommaire` est fourni. Si un arret
-n'a pas de `sommaire`, mentionne-le par sa solution et son lien sans inventer.
+Le digest suit ce plan, dans cet ordre :
+
+1. **En-tête** : titre « Veille juridique — Droit des affaires », période couverte au format « Semaine du JJ mois au JJ mois AAAA », mention « Présentation anti-chronologique ».
+2. **Sommaire** à tirets (une ligne par section présente, avec le nombre d'items).
+3. **Partie 1 — Textes officiels (JORF)** : nouveautés numérotées.
+4. **Partie 2 — Jurisprudence** : arrêts en questions/réponses. **Toujours présente**, même vide (écrire alors : « Aucun arrêt publié au Bulletin sur la période. »).
+5. **Partie 3 — Vu dans la presse générale** : Les Échos, Le Monde.
+6. **Partie 4 — Actualité des sites juridiques** : Dalloz Actualité, Actu-Juridique, Village de la Justice.
+7. **Récapitulatif** (uniquement si le digest compte au moins 5 items au total) : tableau Partie / Items / Nb / Échéance critique.
+8. **Priorités** : liste numérotée de 3 actions au maximum, uniquement s'il existe des échéances ou des chantiers de mise en conformité concrets.
+
+### 2.1. Ordre anti-chronologique
+
+À l'intérieur de chaque partie, classer les items **du plus récent au plus ancien** (date du texte pour le JORF, date de l'arrêt pour la jurisprudence, date de publication pour la presse).
+
+### 2.2. Nouveautés numérotées (textes officiels)
+
+Numérotation **continue sur l'ensemble du digest de la semaine**, au format « N°1 », « N°2 », etc. (la numérotation repart à N°1 chaque semaine). Chaque item suit ce gabarit :
+
+> **N°X — Titre synthétique en gras.** Résumé en 3 phrases maximum (~45 mots) : ce qui change, pour qui, à partir de quand. (Référence : article du texte ; article de code modifié.)
+
+- Le titre synthétique nomme le mécanisme, pas le texte (« Rescrit valeur étendu aux PME », pas « Article 8 de la loi… »).
+- La référence entre parenthèses en fin d'item est obligatoire : numéro d'article du texte source et, le cas échéant, article de code créé ou modifié.
+- Les **échéances et dates d'entrée en vigueur** apparaissent en orange (voir code couleur).
+- Regrouper les items issus d'un même texte sous un intertitre commun : intitulé du texte + numéro + date (ex. « Loi n° 2026-403 du 26 mai 2026 — Simplification de la vie économique »).
+- Un tableau HTML simple est autorisé lorsqu'il clarifie des seuils chiffrés (ex. seuils de concentration : colonnes Seuils / Chiffre d'affaires / Actuels / Révisés).
+
+### 2.3. Jurisprudence en questions/réponses
+
+Chaque arrêt suit strictement ce gabarit :
+
+> **Titre décrivant l'apport de l'arrêt** (formule de solution, pas de simple thème)
+> Date, n° de pourvoi (et formation si notable : Ass. plén., ch. mixte)
+> **QUESTION :** la question de droit, formulée en une phrase interrogative concrète.
+> **RÉPONSE :** commencer par **oui / non / oui, si… / non, sauf…** en gras, puis la règle dégagée en 2 phrases maximum, avec le visa ou les textes clés entre parenthèses.
+
+- Le titre de l'arrêt énonce la solution (ex. « Donation de parts de SARL : acte notarié obligatoire, nullité du don manuel »), en rouge (code couleur).
+- Ajouter le lien Légifrance ou Judilibre lorsque l'URL figure dans le JSON source ; sinon, indiquer seulement le numéro de pourvoi, sans inventer de lien.
+- Mentionner un rapprochement de jurisprudence (« à rapprocher de… ») uniquement si l'information figure dans le sommaire fourni.
+
+### 2.4. Presse générale et sites juridiques
+
+Format volontairement bref — **titre + résumé rapide**, jamais plus :
+
+> **Titre de l'article** — *Source, date.* Une à deux phrases reformulées à partir du chapô. [Lire l'article](lien)
+
+- Reformuler systématiquement : ne jamais recopier le chapô tel quel, ne jamais citer plus d'une dizaine de mots d'affilée.
+- Ne jamais résumer au-delà de ce que donne le flux (titre + chapô) : ne pas prétendre avoir lu l'article complet. Si le chapô est vide (cas fréquent pour Les Échos), se contenter du titre et du lien, sans inventer de résumé.
+- Presse générale (Partie 3) : privilégier les articles à dimension juridique ou réglementaire (réformes, régulation, contentieux d'entreprises, opérations M&A significatives).
+- Sites juridiques (Partie 4) : privilégier les commentaires de textes et d'arrêts entrant dans le périmètre.
+- Si aucune source presse n'est pertinente, omettre la partie concernée du digest et du sommaire.
 
 ---
 
-## Regles de redaction (communes)
-- Francais, factuel, neutre, niveau praticien. N'invente jamais rien.
-- **CONCISION STRICTE** : chaque resume fait **3 phrases maximum (~45 mots)**.
-  Va droit au but : ce qui change, pour qui, l'effet pratique.
-- Dans les **textes JORF** : aucun numero dans le resume. Dans la
-  **jurisprudence** : tu peux citer l'article ou le code central, mais bref.
-- Reformule toujours le sommaire de la Cour ; ne le recopie pas.
+## 3. Code couleur (styles inline uniquement)
+
+- **Rouge `#C0392B`** : titres de parties et titres d'arrêts.
+- **Vert `#27AE60`** : articles et références de codes (C. civ., C. com., LPF…).
+- **Orange `#E67E22`** : échéances, dates d'entrée en vigueur, délais.
+- **Bleu `#2471A3`** : définitions et notions clés.
+
+HTML sobre, lisible en client mail : styles **inline** exclusivement, pas de CSS externe ni de `<style>`, largeur max ~680 px, police système. Les mentions « QUESTION : » et « RÉPONSE : » sont en gras.
 
 ---
 
-## Format de sortie
+## 4. Règles de rédaction
 
-### output/digest.html
-Fragment HTML, styles **inline**, police lisible (Georgia/serif), largeur max
-~720px. Applique ce **code couleur** (sobrement) :
-- titres de section et mentions d'arrets -> **rouge `#C0392B`** ;
-- references d'articles / de codes -> **vert `#27AE60`** ;
-- points d'attention, echeances, entree en vigueur -> **orange `#E67E22`** ;
-- definitions ou principes cles -> **bleu `#2471A3`**.
-
-Structure, dans cet ordre :
-
-1. **En-tete** : « Veille hebdomadaire droit des affaires — semaine du [debut] au
-   [fin] » (titre rouge), en utilisant les dates du champ `periode` (format
-   JJ/MM).
-
-2. **Sommaire** : sous le titre, une **liste a tirets** recapitulant en une ligne
-   chaque entree (textes puis arrets), pour une lecture en diagonale. Prefixe les
-   lignes de jurisprudence par « — [Jurisprudence] … ».
-
-3. **Section « Journal officiel de la semaine »** (titre rouge). Pour chaque texte
-   retenu : un **titre editorial en gras**, un **resume de 3 phrases max**, et le
-   lien « Voir le texte ». Si aucun texte retenu : « Rien de notable au Journal
-   officiel cette semaine. »
-
-4. **Section « Jurisprudence — chambre commerciale »** (titre rouge), **TOUJOURS
-   presente**, meme vide. Pour chaque arret : un **titre editorial en gras**,
-   **2 a 3 phrases** reformulant la solution (article central en vert), et le lien
-   « Voir la decision ». Si vide : en gris, « Aucun arret nouveau de la chambre
-   commerciale cette semaine. »
-
-### output/subject.txt
-Une seule ligne, p. ex.
-`Veille hebdo droit des affaires — semaine du 16 au 22/06 (5 textes, 8 arrets)`.
-Adapte les compteurs.
-
-Termine une fois les deux fichiers ecrits.
+- Résumés : 3 phrases maximum, ~45 mots, factuels, sans commentaire d'opportunité.
+- Aucune invention : ne jamais créer de référence, de date, de numéro de pourvoi ou de lien absent des fichiers sources.
+- En cas de doute sur la pertinence d'un texte JORF, l'écarter.
+- L'objet du mail (écrit dans `output/subject.txt`) suit le format : `Veille droit des affaires — Semaine du JJ au JJ mois AAAA — X textes · Y arrêts · Z articles`.
