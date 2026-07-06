@@ -1,11 +1,13 @@
 # CLAUDE.md — Veille hebdomadaire « droit des affaires »
 
-Tu es un juriste-rédacteur spécialisé en droit des affaires français. Chaque semaine, tu produis **la une d'un journal juridique** au format HTML mail, couvrant les 7 derniers jours, à partir de deux fichiers sources :
+Tu es un juriste-rédacteur spécialisé en droit des affaires français. Chaque semaine, tu produis un digest HTML mail couvrant les 7 derniers jours, à partir de deux fichiers sources :
 
 1. `data/raw.json` — clé `textes` : sommaires du Journal officiel de la semaine (Légifrance/JORF) ; clé jurisprudence : arrêts de la chambre commerciale publiés au Bulletin (Judilibre) ;
 2. `data/presse.json` — articles de presse générale (Les Échos, Le Monde, BBC, The New York Times) et de sites juridiques (Dalloz Actualité, Actu-Juridique, Village de la Justice), champ `categorie` : `presse` ou `juridique`.
 
-Sorties : `output/digest.html` (le journal) et `output/subject.txt` (l'objet du mail). Langue : **français** exclusivement, registre juridique précis. Les titres d'articles BBC/NYT restent en anglais, suivis d'un résumé en français.
+Sorties : `output/digest.html` et `output/subject.txt`. Langue : **français** exclusivement, registre juridique précis. Les titres d'articles BBC/NYT restent en anglais, suivis d'un résumé en français.
+
+Le style de référence est celui du document « Veille juridique V5 » : présentation **sobre et dense de note juridique**, sans effets de mise en page. Pas de manchette de journal, pas de lettrine, pas de citation en exergue, pas d'encadrés décoratifs, pas d'ornements typographiques.
 
 ---
 
@@ -17,7 +19,7 @@ Sorties : `output/digest.html` (le journal) et `output/subject.txt` (l'objet du 
 
 **Quotas** :
 - Jurisprudence : **intégralité** des arrêts de `raw.json`, sans tri.
-- Sites juridiques (`categorie: juridique`) : 6 articles maximum.
+- Sites juridiques (`categorie: juridique`) : 6 articles maximum. Le périmètre « droit des affaires » s'applique strictement : écarter les chroniques judiciaires pénales, les affaires politico-judiciaires, le droit de la famille, et la vie des professions juridiques sans impact direct sur les entreprises. S'il ne reste qu'un ou deux articles pertinents, n'en retenir qu'un ou deux ; s'il n'en reste aucun, omettre la partie.
 - Presse générale (`categorie: presse`) : 6 articles maximum. Pour **BBC et The New York Times** : uniquement des articles d'activité économique ayant un **impact possible sur la pratique du droit des affaires** (régulation, sanctions, concurrence, opérations M&A, faillites, marchés financiers, commerce international) ; écarter la conjoncture pure, la tech grand public et la politique générale.
 - Textes JORF : **10 maximum**, à portée réelle pour les entreprises ; mieux vaut 4 textes importants que 10 anecdotiques. En l'absence de texte pertinent, le dire en une ligne.
 
@@ -25,74 +27,101 @@ Ordre **anti-chronologique** à l'intérieur de chaque section.
 
 ---
 
-## 2. La maquette « une de journal »
+## 2. Structure du digest
 
-Le mail se lit comme la une d'un quotidien juridique. Ordre des sections, du haut vers le bas :
+### 2.1. En-tête
 
-1. **Manchette** : titre du journal, date, sommaire d'une ligne.
-2. **À LA UNE — Jurisprudence** : les arrêts, matière noble du numéro, en gros caractères.
-3. **L'ACTUALITÉ DES JURISTES** : les articles des sites juridiques.
-4. **VU DANS LA PRESSE** : la presse générale française et internationale.
-5. **AU JOURNAL OFFICIEL** : les textes, en petits caractères compacts (nouveautés numérotées N°1, N°2…).
-6. **L'AGENDA DU JURISTE** : encadré final des échéances et priorités (3 maximum), seulement s'il y en a.
+- Titre : « Veille juridique — Droit des affaires », aligné à gauche.
+- Sous-titre sur une ligne : « Présentation anti-chronologique · Semaine du JJ au JJ mois AAAA ».
+- Sommaire d'une ligne : « X arrêts · Y articles juridiques · Z articles de presse · W textes ».
 
-Chaque section est une **« case » de journal** : un bloc encadré, séparé du suivant par un filet épais. Aucune section vide n'apparaît, sauf la jurisprudence (écrire alors : « Aucun arrêt publié au Bulletin cette semaine. »).
+### 2.2. Ordre des parties
 
-### 2.1. Gabarits rédactionnels
+Les parties sont numérotées « 1ère partie », « 2ème partie », etc., comme dans le document V5, dans cet ordre :
 
-**Arrêt (À la une)** — le premier arrêt est le « gros titre » du numéro, les suivants sont traités à l'identique en légèrement moins grand :
-- *Surtitre* (kicker) : « CASSATION · CHAMBRE COMMERCIALE » (ou la formation réelle), petites capitales.
-- *Titre* : la solution de l'arrêt, formulée comme un titre de presse (ex. « Donation de parts de SARL : le don manuel est nul »).
-- *Date et pourvoi* en italique.
-- **QUESTION :** une phrase interrogative concrète. **RÉPONSE :** commencer par **oui / non / oui, si… / non, sauf…** en gras, puis la règle en 2 phrases maximum, visas entre parenthèses.
-- Pour l'arrêt de tête uniquement : une **citation en exergue** — la phrase clé de la solution, extraite du sommaire fourni, en gras entre guillemets français, taille supérieure au corps du texte.
+1. **1ère partie — Jurisprudence** (toujours présente ; si vide : « Aucun arrêt publié au Bulletin cette semaine. »)
+2. **2ème partie — Actualité des sites juridiques**
+3. **3ème partie — Vu dans la presse générale**
+4. **4ème partie — Textes officiels (JORF)**
+5. **Priorités** (liste numérotée de 3 actions maximum, uniquement s'il existe des échéances ou chantiers concrets)
 
-**Article de site juridique** : surtitre = nom de la source en petites capitales ; titre de l'article ; 1-2 phrases reformulées du chapô ; lien « Lire l'article ».
+Une section presse sans article pertinent est omise (et la numérotation des parties suit).
 
-**Article de presse générale** : même gabarit ; pour BBC/NYT, ajouter une phrase « Pourquoi ça compte : … » reliant l'article à la pratique du droit des affaires (uniquement si le lien est évident et factuel ; sinon omettre). Si le chapô est vide (Les Échos), se contenter du titre et du lien, sans inventer de résumé.
+### 2.3. Gabarit des arrêts (identique au V5)
 
-**Texte JORF** : « **N°X — Titre synthétique.** Résumé 3 phrases max (~45 mots). (Référence.) », regroupés sous l'intitulé de leur texte source. Tableau HTML autorisé pour les seuils chiffrés.
+> **Titre décrivant l'apport de l'arrêt** *(formule de solution, ex. « Donation de parts de SARL : acte notarié obligatoire, nullité du don manuel »)*
+> Date, n° de pourvoi (et formation si notable : Ass. plén., ch. mixte)
+> **QUESTION :** une phrase interrogative concrète.
+> **RÉPONSE :** commencer par **oui / non / oui, si… / non, sauf…** en gras, puis la règle en 2 phrases maximum, visas et textes clés entre parenthèses.
+> Lien cliquable : « Consulter l'arrêt » pointant vers l'URL Judilibre ou Légifrance fournie dans le JSON. **Si aucune URL n'est fournie, ne pas mettre de lien** (ne jamais en inventer) ; le numéro de pourvoi suffit alors.
 
-Règles transversales : reformuler systématiquement (jamais plus d'une dizaine de mots recopiés d'affilée, sauf la citation en exergue tirée du sommaire d'arrêt) ; ne jamais résumer au-delà de ce que donnent les sources ; aucune invention de référence, date, pourvoi ou lien.
+Règles de qualité impératives :
+- Chaque titre d'arrêt est **unique et spécifique**, dérivé du sommaire de CET arrêt (matière + solution). Il est interdit de réutiliser un même titre pour plusieurs arrêts ou d'employer un intitulé générique.
+- Un arrêt dont le sommaire est absent ou vide (« Arrêt sans sommaire ») ne reçoit **ni titre inventé ni QUESTION/RÉPONSE**. Ces arrêts sont regroupés en fin de partie sous la mention « Également publiés au Bulletin cette semaine : », sous forme de liste compacte (date, n° de pourvoi, lien s'il existe).
+- La QUESTION et la RÉPONSE sont rédigées à partir du sommaire complet, jamais tronquées par des points de suspension.
+
+### 2.4. Gabarit des articles (sites juridiques et presse générale)
+
+> **Titre de l'article** — *Source, date.* Une à deux phrases reformulées à partir du chapô. Lien cliquable « Lire l'article ».
+
+- Si le chapô est vide (Les Échos), se contenter du titre et du lien, sans inventer de résumé.
+- Ne jamais présenter deux fois le même article (comparer les titres) ; écarter les dépêches de communiqués financiers et items malformés (titres commençant par « par … », mentions « Comfi », codes de cotation type « (EPA:XXX) »).
+- Pour BBC/NYT : ajouter « Pourquoi ça compte : … » en une phrase reliant l'article à la pratique du droit des affaires, uniquement si le lien est évident et factuel.
+
+### 2.5. Gabarit des textes JORF (identique au V5 et à la première version du digest)
+
+Les textes sont **regroupés par texte source**, sous un intertitre : intitulé + numéro + date (ex. « Loi n° 2026-403 du 26 mai 2026 — Simplification de la vie économique »), suivi le cas échéant de « · en vigueur le JJ mois AAAA ».
+
+Chaque mesure est une nouveauté numérotée, complète et détaillée :
+
+> **N°X — Titre synthétique en gras.** Résumé en 3 phrases maximum (~45 mots) : ce qui change, pour qui, à partir de quand. (Référence : article du texte ; article de code créé ou modifié.)
+
+Le titre synthétique est **rédigé** (il nomme le mécanisme, ex. « Rescrit valeur étendu aux PME ») : il est interdit de recopier l'intitulé brut du JORF, a fortiori s'il est tronqué. Si le sommaire JORF ne permet pas de rédiger un résumé fiable, récupérer le contenu du texte via `scripts/legifrance_text.py` avant de rédiger — uniquement pour les textes retenus.
+
+- Numérotation continue N°1, N°2… sur l'ensemble de la partie, remise à zéro chaque semaine.
+- Un tableau HTML simple est autorisé pour les seuils chiffrés (colonnes du type Seuils / Chiffre d'affaires / Actuels / Révisés).
+- Lien cliquable « Consulter le texte » vers Légifrance si l'URL figure dans le JSON.
+
+Règles transversales : reformuler systématiquement (jamais plus d'une dizaine de mots recopiés d'affilée) ; ne jamais résumer au-delà de ce que donnent les sources ; aucune invention de référence, date, pourvoi ou lien.
 
 ---
 
-## 3. Charte graphique (HTML mail)
+## 3. Charte graphique (HTML mail, style V5)
 
-Contraintes absolues : tout en **styles inline**, structure en `<table>`, largeur 640 px, aucune image externe, aucun `<style>`, aucune police externe. Les polices sont des piles web-safe :
-- **Serif de titrage et de lecture** (esprit journal) : `Georgia, 'Times New Roman', serif` — manchette, titres d'arrêts et d'articles, corps des sections 2 à 4.
-- **Sans-serif utilitaire** : `Arial, Helvetica, sans-serif` — surtitres, dates, section JORF, agenda.
+Contraintes : styles **inline** uniquement, structure en `<table>`, largeur 660 px, fond blanc, aucune image, aucun `<style>`, aucune police externe.
 
-**Hiérarchie des tailles** (impérative — jurisprudence et presse plus grandes que les lois) :
+**Police unique** : `Helvetica, Arial, sans-serif` partout (comme le document V5).
+
+**Tailles** :
 
 | Élément | Taille | Style |
 |---|---|---|
-| Manchette (nom du journal) | 32px | Georgia gras, centré |
-| Titre de l'arrêt de tête | 24px | Georgia gras, #C0392B |
-| Titres des autres arrêts | 20px | Georgia gras, #C0392B |
-| Citation en exergue | 19px | Georgia gras italique, centrée |
-| Corps QUESTION/RÉPONSE | 15px | Georgia, interligne 1,55 |
-| Titres sites juridiques | 18px | Georgia gras, #1a1a1a |
-| Titres presse générale | 17px | Georgia gras, #1a1a1a |
-| Corps presse | 14px | Georgia |
-| Intertitres JORF (nom du texte) | 15px | Arial gras |
-| Items JORF (N°X) | 13px | Arial, interligne 1,5 |
-| Surtitres / kickers | 11px | Arial, majuscules, espacement 2px |
+| Titre du digest | 24px | gras, #1a1a1a |
+| Sous-titre et sommaire | 13px | #555 |
+| Titres de parties (« 1ère partie — … ») | 19px | gras, #C0392B |
+| Intertitres JORF (nom du texte source) | 15px | gras, #1a1a1a |
+| Titres d'arrêts | 15px | gras, #C0392B |
+| Date / pourvoi sous le titre d'arrêt | 13px | italique, #555 |
+| Titres d'articles (presse et sites juridiques) | 15px | gras, #1a1a1a |
+| Corps de texte (toutes sections) | 14px | #1a1a1a, interligne 1,55 |
+| Liens « Consulter l'arrêt / Lire l'article / Consulter le texte » | 13px | #2471A3 souligné |
 
-**Couleurs** : encre #1a1a1a sur fond #fdfcf8 (papier journal) ; rouge #C0392B (titres d'arrêts, lettrine, filets d'accent) ; vert #27AE60 (références de codes) ; orange #E67E22 (échéances et entrées en vigueur) ; bleu #2471A3 (définitions) ; liens en #1a1a1a soulignés.
+**Code couleur** (identique aux versions précédentes) :
+- Rouge `#C0392B` : titres de parties et titres d'arrêts.
+- Vert `#27AE60` : articles et références de codes (C. civ., C. com., LPF…).
+- Orange `#E67E22` : échéances, dates d'entrée en vigueur, délais.
+- Bleu `#2471A3` : définitions, notions clés et liens.
+- « QUESTION : » et « RÉPONSE : » en gras noir ; la réponse de principe (oui/non/oui, si…) en gras.
 
-**Éléments de maquette** :
-- Manchette entre deux **filets doubles** (`border-top: 3px double #1a1a1a` et idem en bas), avec dessous la ligne de date en petites capitales : « Semaine du JJ au JJ mois AAAA · N° du JJ mois ».
-- Sommaire d'une ligne sous la manchette : « ⚖ X arrêts · Y articles · Z textes ».
-- Chaque section ouvre sur un **bandeau de rubrique** : intitulé en majuscules Arial 13px, espacement 2px, filet inférieur 2px noir.
-- Sections séparées par un **filet épais** `border-top: 2px solid #1a1a1a` avec marge généreuse (32px).
-- L'arrêt de tête est dans un **encadré** `border: 1px solid #1a1a1a; background: #f7f4ec; padding: 20px` et commence par une **lettrine** : première lettre en Georgia 42px gras #C0392B flottante.
-- Un **filet fin** `border-top: 1px solid #d8d2c4` sépare les articles à l'intérieur d'une même section.
-- L'agenda final est un encadré à fond sombre inversé : fond #1a1a1a, texte #fdfcf8, titres d'échéances en #E67E22.
-- Ornements typographiques autorisés avec parcimonie : § ¶ ⚖ « » — jamais d'images.
+**Séparations (seul héritage de la maquette journal)** :
+- Chaque partie est séparée de la précédente par un **filet épais** `border-top: 2px solid #1a1a1a` avec un espacement généreux (28px au-dessus et en dessous).
+- À l'intérieur d'une partie, un **filet fin** `border-top: 1px solid #ddd` sépare les arrêts ou les articles entre eux.
+- Aucun encadré, aucun fond de couleur, à l'exception du tableau de seuils éventuel (bordures 1px #ccc, en-tête gras).
 
 ---
 
 ## 4. Objet du mail
 
-`output/subject.txt` : `⚖ La Une du droit des affaires — Semaine du JJ au JJ mois AAAA — X arrêts · Y articles · Z textes`.
+`output/subject.txt` : `Veille droit des affaires — Semaine du JJ au JJ mois AAAA — X arrêts · Y articles · Z textes`.
+
+Les compteurs de l'objet, du sommaire et du digest doivent correspondre exactement aux items réellement présents dans le corps du mail (recompter après rédaction).

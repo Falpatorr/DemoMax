@@ -263,6 +263,10 @@ def main() -> int:
                 title = re.sub(suffix_re, "", title).strip()
             if not link or not title:
                 continue
+            # Dechets connus : communiques financiers relayes par Google News
+            tl = title.lower()
+            if tl.startswith("par ") or "comfi" in tl or re.search(r"\((?:epa|ams|ebr|lse):", tl):
+                continue
             dt = parse_date(entry["date"])
             # Sans date exploitable : on garde (le dédoublonnage évite les répétitions).
             if dt is not None and not (d_from <= dt.date() <= d_to):
