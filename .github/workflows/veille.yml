@@ -62,7 +62,7 @@ jobs:
           PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
           PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
         run: |
-          claude -p "$(cat agent_prompt.md)" --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 20
+          claude -p "$(cat agent_prompt.md)" --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 50
 
       - name: Envoyer le digest
         env:
