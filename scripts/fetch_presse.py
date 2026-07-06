@@ -56,6 +56,18 @@ FEEDS = [
         "url": "https://www.lemonde.fr/economie/rss_full.xml",
     },
     {
+        "source": "BBC",
+        "categorie": "presse",
+        "url": "https://feeds.bbci.co.uk/news/business/rss.xml",
+        "max_items": 25,
+    },
+    {
+        "source": "The New York Times",
+        "categorie": "presse",
+        "url": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+        "max_items": 25,
+    },
+    {
         "source": "Dalloz Actualité",
         "categorie": "juridique",
         "url": "https://www.dalloz-actualite.fr/actualites/feed.xml",

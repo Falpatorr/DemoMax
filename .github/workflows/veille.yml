@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests python-dotenv
+      - run: pip install requests python-dotenv weasyprint
 
       - uses: actions/setup-node@v4
         with:
@@ -64,6 +64,9 @@ jobs:
           PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
         run: |
           claude -p "$(cat agent_prompt.md)" --model claude-haiku-4-5 --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 50
+
+      - name: Generer le PDF (edition imprimable)
+        run: python scripts/make_pdf.py
 
       - name: Envoyer le digest
         env:
