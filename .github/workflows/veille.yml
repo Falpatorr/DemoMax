@@ -2,7 +2,8 @@ name: veille-droit-affaires
 
 on:
   schedule:
-    - cron: "0 5 * * 1"   
+    - cron: "0 7 * * 1"   # lundi, heure d'ete : 9h Paris
+    - cron: "0 8 * * 1"   # lundi, heure d'hiver : 9h Paris
   workflow_dispatch:
 
 permissions:
@@ -52,8 +53,8 @@ jobs:
           PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
           PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
         run: python scripts/fetch_juri.py
-      
-      - name: Récupération presse (RSS)
+
+      - name: Recuperation presse (RSS)
         run: python scripts/fetch_presse.py
 
       - name: Rediger le digest
@@ -62,7 +63,7 @@ jobs:
           PISTE_CLIENT_ID: ${{ secrets.PISTE_CLIENT_ID }}
           PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
         run: |
-          claude -p "$(cat agent_prompt.md)" --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 50
+          claude -p "$(cat agent_prompt.md)" --model claude-haiku-4-5 --allowedTools "Read,Write,Bash" --permission-mode acceptEdits --max-turns 50
 
       - name: Envoyer le digest
         env:
@@ -75,8 +76,9 @@ jobs:
         run: |
           git config user.name "veille-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add state/juri_seen.json
-          git commit -m "maj registre jurisprudence [skip ci]" || echo "rien a committer"
+          git pull --rebase origin main || true
+          git add state/
+          git commit -m "maj registres de deduplication [skip ci]" || echo "rien a committer"
           git push || echo "rien a pousser"
 
       - name: Alerte en cas d'echec

@@ -275,7 +275,7 @@ def main() -> int:
     collected.sort(key=lambda x: x["date"] or "", reverse=True)
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    out = DATA_DIR / f"presse_{today.strftime('%Y%m%d')}.json"
+    out = DATA_DIR / "presse.json"
     out.write_text(
         json.dumps(collected, ensure_ascii=False, indent=2), encoding="utf-8"
     )
