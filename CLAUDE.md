@@ -20,8 +20,8 @@ Le style de référence est celui du document « Veille juridique V5 » : prése
 **Quotas** :
 - Jurisprudence : **intégralité** des arrêts de `raw.json`, sans tri.
 - Sites juridiques (`categorie: juridique`) : 6 articles maximum. Le périmètre « droit des affaires » s'applique strictement : écarter les chroniques judiciaires pénales, les affaires politico-judiciaires, le droit de la famille, et la vie des professions juridiques sans impact direct sur les entreprises. S'il ne reste qu'un ou deux articles pertinents, n'en retenir qu'un ou deux ; s'il n'en reste aucun, omettre la partie.
-- Presse générale (`categorie: presse`) : 6 articles maximum. Pour **BBC et The New York Times** : uniquement des articles d'activité économique ayant un **impact possible sur la pratique du droit des affaires** (régulation, sanctions, concurrence, opérations M&A, faillites, marchés financiers, commerce international) ; écarter la conjoncture pure, la tech grand public et la politique générale.
-- Textes JORF : **10 maximum**, à portée réelle pour les entreprises ; mieux vaut 4 textes importants que 10 anecdotiques. En l'absence de texte pertinent, le dire en une ligne.
+- Presse générale (`categorie: presse`) : 6 articles maximum, en visant 4 à 6 dès que la matière existe et en **équilibrant les sources** : si Les Échos ou Le Monde proposent des articles pertinents, en retenir au moins un de chacun avant de compléter avec BBC et NYT. Pour **BBC et The New York Times** : uniquement des articles d'activité économique ayant un **impact possible sur la pratique du droit des affaires** (régulation, sanctions, concurrence, opérations M&A, faillites, marchés financiers, commerce international) ; écarter la conjoncture pure, la tech grand public et la politique générale.
+- Textes JORF : retenir **tous** les textes à portée réelle pour les entreprises, dans la limite de **12**. L'objectif est l'exhaustivité utile : ne pas se limiter à un petit échantillon quand la semaine est riche. N'écarter que les textes véritablement hors périmètre ou anecdotiques. En l'absence de texte pertinent, le dire en une ligne.
 
 Ordre **anti-chronologique** à l'intérieur de chaque section.
 

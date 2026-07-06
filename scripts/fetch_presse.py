@@ -268,12 +268,17 @@ def main() -> int:
             if tl.startswith("par ") or "comfi" in tl or re.search(r"\((?:epa|ams|ebr|lse):", tl):
                 continue
             dt = parse_date(entry["date"])
-            # Sans date exploitable : on garde (le dédoublonnage évite les répétitions).
-            if dt is not None and not (d_from <= dt.date() <= d_to):
-                continue
-            if link in seen:
-                continue
-            seen[link] = today.isoformat()
+            if dt is not None:
+                # Item date : la fenetre J-7 -> J-1 suffit a eviter les doublons
+                # d'une semaine sur l'autre (fenetres disjointes). Pas de registre,
+                # donc les re-tests d'une meme semaine restent complets.
+                if not (d_from <= dt.date() <= d_to):
+                    continue
+            else:
+                # Item sans date : seul cas ou le registre est necessaire.
+                if link in seen:
+                    continue
+                seen[link] = today.isoformat()
             chapo = "" if feed.get("drop_desc") \
                 else strip_html(entry["desc"] or "")[:MAX_DESC_CHARS]
             collected.append({

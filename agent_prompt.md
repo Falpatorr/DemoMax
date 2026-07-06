@@ -8,10 +8,12 @@ Données sources (déjà préparées, ne relance aucun script de collecte) :
 
 Méthode, dans cet ordre et sans étape superflue :
 1. Lis CLAUDE.md, data/raw.json et data/presse.json.
-2. Sélectionne les textes JORF pertinents (10 maximum). Pour les textes
-   retenus dont le sommaire ne suffit pas à rédiger un résumé fiable,
+2. Sélectionne les textes JORF pertinents : TOUS les textes à portée
+   réelle pour les entreprises, jusqu'à 12. Ne vise pas le minimum ; un
+   digest riche vaut mieux qu'un digest expéditif. Pour chaque texte
+   retenu dont le sommaire ne suffit pas à rédiger un résumé fiable,
    récupère le contenu via scripts/legifrance_text.py — uniquement pour
-   ces textes-là, jamais pour l'ensemble.
+   les textes retenus, jamais pour l'ensemble.
 3. Rédige le digest complet au format V5 de CLAUDE.md et écris
    output/digest.html puis output/subject.txt.
 
